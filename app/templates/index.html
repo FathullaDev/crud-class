@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>OTM List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #fafafa;
+            color: #222;
+        }
+        .container {
+            width: 95%;
+            max-width: 1100px;
+            margin: 24px auto;
+            background: #fff;
+            padding: 18px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .nav {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+        .nav a {
+            margin: 0 8px;
+            text-decoration: none;
+            color: #0d6efd;
+            font-weight: 600;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 8px;
+        }
+        th, td {
+            border: 1px solid #e2e2e2;
+            padding: 10px 12px;
+            text-align: left;
+        }
+        th {
+            background: #f7f7f7;
+            font-weight: 700;
+        }
+        .actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 6px 10px;
+            font-size: 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-edit {
+            background: #e7f1ff;
+            color: #0d6efd;
+            border-color: #cfe3ff;
+        }
+        .btn-delete {
+            background: #fff5f5;
+            color: #d63333;
+            border-color: #ffd8d8;
+        }
+        .empty-row {
+            text-align: center;
+            color: #666;
+        }
+        form.delete-form {
+            display: inline;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>OTM List</h1>
+
+    <div class="nav">
+        <a class="nav-link" href="{% url 'add_otm' %}" tabindex="-1" aria-disabled="true">Add OTM</a>
+        <a class="nav-link" href="{% url 'add_group' %}" tabindex="-1" aria-disabled="true">Add group</a>
+        <a class="nav-link" href="{% url 'add_student' %}" tabindex="-1" aria-disabled="true">Add student</a>
+    </div>
+
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Nomi</th>
+            <th>Email</th>
+            <th>Telefon</th>
+            <th>Manzil</th>
+            <th>Yaratilgan</th>
+            <th>O‘zgartirilgan</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        {% for otm in otm %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ otm.title }}</td>
+            <td>{{ otm.email }}</td>
+            <td>{{ otm.phone }}</td>
+            <td>{{ otm.address }}</td>
+            <td>{{ otm.created_ed }}</td>
+            <td>{{ otm.updated_ed }}</td>
+            <td>
+                <div class="actions">
+                    <!-- GROUPS BUTTON -->
+                    <a class="btn btn-edit" href="{% url 'groups_by_otm' otm.id %}">
+                        Groups
+                    </a>
+
+                    <!-- EDIT BUTTON -->
+                    <a class="btn btn-edit" href="{% url 'update_otm' otm.id %}">
+                        Edit
+                    </a>
+
+                    <!-- DELETE BUTTON -->
+                    <form action="{% url 'delete_otm' otm.id %}" method="post" class="delete-form"
+                          onsubmit="return confirm('O‘chirishni tasdiqlaysizmi?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-delete">Delete</button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="empty-row">Hozircha ma'lumot yo‘q</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+</body>
+</html>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ student.surname }} {{ student.name }} — Profil</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f3f3f3;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+        .container {
+            width: 95%;
+            max-width: 900px;
+            margin: 30px auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        h1 {
+            margin-top: 0;
+            font-weight: 700;
+            color: #333;
+        }
+        .top-nav {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .btn {
+            padding: 8px 14px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .btn-back {
+            background: #eef2ff;
+            border-color: #d6e2ff;
+            color: #0d6efd;
+        }
+        .btn-edit {
+            background: #e7f1ff;
+            border-color: #cfe3ff;
+            color: #0d6efd;
+        }
+        .btn-delete {
+            background: #ffe7e7;
+            border-color: #ffd1d1;
+            color: #d63333;
+        }
+
+        .profile-section {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+
+        .profile-photo {
+            width: 180px;
+            height: 180px;
+            border-radius: 10px;
+            object-fit: cover;
+            border: 1px solid #ddd;
+        }
+
+        .info-card {
+            flex: 1;
+            padding: 16px;
+            border-radius: 8px;
+            background: #f8faff;
+            border: 1px solid #e6edff;
+        }
+
+        .info-block {
+            margin: 10px 0;
+            font-size: 15px;
+        }
+
+        .label {
+            font-weight: 600;
+            color: #444;
+            width: 120px;
+            display: inline-block;
+        }
+
+        .divider {
+            height: 1px;
+            background: #eee;
+            margin: 24px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- TOP BUTTONS -->
+    <div class="top-nav">
+        <a href="javascript:history.back()" class="btn btn-back">← Orqaga</a>
+
+        <div style="display:flex; gap:8px;">
+            <a href="{% url 'update_student' student.id %}" class="btn btn-edit">Edit</a>
+
+            <form action="{% url 'delete_student' student.id %}"
+                  method="post"
+                  onsubmit="return confirm('Studentni o‘chirishni tasdiqlaysizmi?');"
+                  style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-delete">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- STUDENT FULL NAME -->
+    <h1>{{ student.surname }} {{ student.name }}</h1>
+
+    <!-- PROFILE SECTION -->
+    <div class="profile-section">
+
+        <!-- PHOTO -->
+        {% if student.photo %}
+            <img src="{{ student.photo.url }}" alt="Photo" class="profile-photo">
+        {% else %}
+            <img src="/static/default-avatar.png" alt="No Photo" class="profile-photo">
+        {% endif %}
+
+        <!-- BASIC INFO -->
+        <div class="info-card">
+            <div class="info-block">
+                <span class="label">Ism:</span>
+                {{ student.name }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Familiya:</span>
+                {{ student.surname }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Telefon:</span>
+                {{ student.phone }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Email:</span>
+                {{ student.email|default:"—" }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Tug‘ilgan sana:</span>
+                {{ student.birthday|date:"d.m.Y" }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Yaratilgan:</span>
+                {{ student.created_ed }}
+            </div>
+
+            <div class="info-block">
+                <span class="label">Yangilangan:</span>
+                {{ student.updated_ed }}
+            </div>
+        </div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="divider"></div>
+    <h2>Qo‘shimcha ma’lumot</h2>
+    <div class="info-card">
+        {{ student.description|default:"Ma'lumot kiritilmagan." }}
+    </div>
+
+    <!-- GROUP + OTM INFO -->
+    <div class="divider"></div>
+    <h2>Guruh va OTM ma’lumotlari</h2>
+
+    <div class="info-card">
+        <div class="info-block">
+            <span class="label">Guruh:</span>
+            {{ student.group.title }}
+        </div>
+
+        <div class="info-block">
+            <span class="label">Yo‘nalish:</span>
+            {{ student.group.direction }}
+        </div>
+
+        <div class="info-block">
+            <span class="label">OTM:</span>
+            {{ student.group.otm.title }}
+        </div>
+
+        <div class="info-block">
+            <span class="label">OTM telefon:</span>
+            {{ student.group.otm.phone }}
+        </div>
+
+        <div class="info-block">
+            <span class="label">OTM email:</span>
+            {{ student.group.otm.email }}
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

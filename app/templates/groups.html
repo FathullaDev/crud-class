@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <title>OTM List — Guruhlar</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #fafafa; color: #222; }
+        .container { width: 95%; max-width: 1100px; margin: 24px auto; background: #fff; padding: 18px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-radius: 8px; }
+        h1 { text-align: center; margin-bottom: 10px; }
+        .nav { text-align: center; margin-bottom: 18px; }
+        .nav a { margin: 0 8px; text-decoration: none; color: #0d6efd; font-weight: 600; }
+
+        table { border-collapse: collapse; width: 100%; margin-top: 8px; }
+        th, td { border: 1px solid #e2e2e2; padding: 10px 12px; text-align: left; vertical-align: top; }
+        th { background: #f7f7f7; font-weight: 700; }
+
+        .actions { display: flex; gap: 8px; align-items: center; }
+        .btn { display: inline-block; padding: 6px 10px; font-size: 14px; border-radius: 6px; text-decoration: none; cursor: pointer; border: 1px solid transparent; }
+        .btn-edit { background: #e7f1ff; color: #0d6efd; border-color: #cfe3ff; }
+        .btn-delete { background: #fff5f5; color: #d63333; border-color: #ffd8d8; }
+
+        /* Selected OTM detail row */
+        .selected-detail { background: #fbfdff; border-left: 4px solid #cfe3ff; padding: 10px; }
+        .selected-meta { margin-bottom: 8px; color: #333; }
+        .groups-table { border-collapse: collapse; width: 100%; margin-top: 6px; }
+        .groups-table th, .groups-table td { border: 1px solid #e6e6e6; padding: 8px; text-align: left; }
+
+        .empty-row { text-align: center; color: #666; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>OTM List</h1>
+
+    <div class="nav">
+        <a class="nav-link" href="{% url 'add_otm' %}">Add OTM</a>
+        <a class="nav-link" href="{% url 'add_group' %}">Add group</a>
+        <a class="nav-link" href="{% url 'add_student' %}">Add student</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Nomi</th>
+                <th>Email</th>
+                <th>Telefon</th>
+                <th>Manzil</th>
+                <th>Yaratilgan</th>
+                <th>O‘zgartirilgan</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+        {% for o in all_otm %}
+            <!-- Har bir OTM uchun oddiy qator (tartib saqlanadi) -->
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ o.title }}</td>
+                <td>{{ o.email }}</td>
+                <td>{{ o.phone }}</td>
+                <td>{{ o.address }}</td>
+                <td>{{ o.created_ed }}</td>
+                <td>{{ o.updated_ed }}</td>
+                <td>
+                    <div class="actions">
+                        <a class="btn btn-edit" href="{% url 'groups_by_otm' o.id %}">Groups</a>
+                        <a class="btn btn-edit" href="{% url 'update_otm' o.id %}">Edit</a>
+                        <form action="{% url 'delete_otm' o.id %}" method="post" class="delete-form" onsubmit="return confirm('O‘chirishni tasdiqlaysizmi?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-delete">Delete</button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+
+            <!-- Agar bu qator tanlangan OTM bo'lsa — uning batafsil ma'lumotlari va guruhlari shu qator ostida chiqadi -->
+            {% if o.id == selected_otm.id %}
+            <tr>
+                <td colspan="8">
+                    <div class="selected-detail" role="region" aria-label="{{ o.title }} details">
+                        <!-- Selected OTM meta -->
+                        <div class="selected-meta">
+                            <strong>{{ o.title }}</strong><br>
+                            <small><strong>Email:</strong> {{ o.email|default:"—" }} &nbsp; | &nbsp; <strong>Telefon:</strong> {{ o.phone|default:"—" }}</small><br>
+                            <small><strong>Manzil:</strong> {{ o.address|default:"—" }}</small>
+                        </div>
+
+                        <!-- Guruhlar ro'yxati (tanlangan OTM uchun) -->
+                        <div class="groups-block">
+                            <h4 style="margin:6px 0;">{{ o.title }} — Guruhlar</h4>
+
+                            {% if groups_for_selected.exists %}
+                                <table class="groups-table">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Guruh nomi</th>
+                                            <th>Yo'nalish</th>
+                                            <th>Yaratilgan</th>
+                                            <th>Yangilangan</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for g in groups_for_selected %}
+                                            <tr>
+                                                <td>{{ forloop.counter }}</td>
+                                                <td>{{ g.title }}</td>
+                                                <td>{{ g.direction }}</td>
+                                                <td>{{ g.created_ed }}</td>
+                                                <td>{{ g.updated_ed }}</td>
+                                                <td>
+                                                    <div class="actions">
+                                                        <a class="btn btn-edit" href="{% url 'students_by_groups_and_otm' selected_otm.id g.id %}">Students</a>
+                                                        <a class="btn btn-edit" href="{% url 'update_group' g.id %}">Edit</a>
+                                                        <form action="{% url 'delete_otm' o.id %}" method="post" class="delete-form" onsubmit="return confirm('O‘chirishni tasdiqlaysizmi?');">
+                                                            {% csrf_token %}
+                                                            <button type="submit" class="btn btn-delete">Delete</button>
+                                                        </form>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            {% else %}
+                                <div class="empty-row">Bu OTMga tegishli guruhlar mavjud emas.</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            {% endif %}
+
+        {% empty %}
+            <tr>
+                <td colspan="8" class="empty-row">Hozircha ma'lumot yo‘q</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
